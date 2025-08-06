@@ -1,6 +1,7 @@
 from parser import Parser, Grammar
 
 
+"""
 productions = {
     "program": [
         ["function_declarations", "main_function"]
@@ -79,6 +80,47 @@ productions = {
         ["(", "expression", ")"]
     ]
     }
+"""
+productions = {
+    "program": [
+        ["statements"]
+    ],
+    "statements": [
+        ["statement", "statements"],
+        []
+    ],
+    "statement": [
+        ["assignment", ";"],
+        ["expression", ";"]
+    ],
+    "assignment": [
+        ["IDENTIFIER", "=", "expression"]
+    ],
+    "expression": [
+        ["term", "after"]
+    ],
+    "after": [
+        ["+", "expression"],
+        ["ε"]
+    ],
+    "term": [
+        ["NUMBER"],
+        ["IDENTIFIER"],
+        ["(", "expression", ")"]
+    ]
+}
 grammar = Grammar("program", productions)
 parser = Parser(grammar)
-print(parser.first())
+print("First Set :", parser.first)
+print('------------------------------')
+print("Follow Set :", parser.follow)
+print('------------------------------')
+print("Parse Table:")
+for nt, rules in parser.parse_table.items():
+    print(f"{nt}:")
+    for t, production in rules.items():
+        print(f"  {t} -> {production}") 
+input_tokens = ["IDENTIFIER", "=", "NUMBER", ";", "(", "NUMBER", "+", "NUMBER", ")", ";"]
+print('------------------------------')
+parser.parse(input_tokens)
+
