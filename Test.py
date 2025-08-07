@@ -1,4 +1,4 @@
-from parser import Parser, Grammar
+from parser import *
 
 
 """
@@ -81,13 +81,14 @@ productions = {
     ]
     }
 """
+#Simple arithmetic grammar for testing
 productions = {
     "program": [
         ["statements"]
     ],
     "statements": [
         ["statement", "statements"],
-        []
+        ["ε"]
     ],
     "statement": [
         ["assignment", ";"],
@@ -110,7 +111,9 @@ productions = {
     ]
 }
 grammar = Grammar("program", productions)
-parser = Parser(grammar)
+parser = TopDownParser(grammar)
+print("Nullable Set :", parser.null())
+print('------------------------------')
 print("First Set :", parser.first)
 print('------------------------------')
 print("Follow Set :", parser.follow)

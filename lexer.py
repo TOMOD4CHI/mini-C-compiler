@@ -1,6 +1,4 @@
-import re,sys,os
-
-
+import re
 class Token : 
     def __init__(self, type, value, column, lineno):
         self.type = type

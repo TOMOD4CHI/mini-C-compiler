@@ -15,21 +15,37 @@ class Grammar():
 class Parser:
     def __init__(self, grammar):
         self.grammar = grammar
-        self.tokens = []
-        self.current_token_index = 0
+        self.parse_table = {}
+
+    def parse(self, input):
+        pass  # Placeholder for the parse method, to be implemented in subclasses
+
+class TopDownParser(Parser):
+    def __init__(self, grammar):
+        super().__init__(grammar)
+        self.nullable = self.null()
         self.first = self.first_set()
         self.follow = self.follow_set()
-        self.nullable = self.null()
         self.parse_table = self.build_parse_table()
-
-    #TODO : This is not the best way to check for nullability
-    # this is just  a placeholder for now
-    # I will implement a better way to check for nullability later
-    # this is just to make sure the code runs without errors 
-    #AKA only for testing purposes works for the level zero null productions
     def null(self):
-        return set(nt for nt in self.grammar.nonterminals if ["ε"] in self.grammar.get_productions(nt))
-
+        nullable = set()
+        changed = True
+        while changed :
+            changed = False
+            for nt, productions in self.grammar.production.items():
+                if nt in nullable:
+                    continue
+                for production in productions:
+                    if production == ["ε"]:
+                        nullable.add(nt)
+                        changed = True
+                    else:
+                        test = list(symbol in nullable for symbol in production)
+                        if all(test):
+                            nullable.add(nt)
+                            changed = True
+        return nullable
+        
 
     
 
@@ -61,7 +77,7 @@ class Parser:
                 break
             elif symbol in self.grammar.nonterminals:
                 result.update(first_sets[symbol])
-                if symbol not in self.null():
+                if symbol not in self.nullable:
                     break
             else:
                 break
@@ -79,6 +95,9 @@ class Parser:
                 for production in productions:
                     for i, symbol in enumerate(production):
                         if symbol in self.grammar.nonterminals:
+                            if changed :
+                                self.update_follow(follow_sets, i, symbol, production, nt, first)
+                                continue
                             changed = self.update_follow(follow_sets, i, symbol, production, nt, first)
         return follow_sets
                             
@@ -125,8 +144,7 @@ class Parser:
                     for follow_terminal in self.follow[nt]:
                         table[nt][follow_terminal].append(production)
         return table
-
-
+    
     def parse(self, input):
         input.append("#")
         stack = [self.grammar.axiom]
@@ -160,11 +178,18 @@ class Parser:
         else:
             print("Parsing completed successfully.")
 
-#TODO : Implement the Bottom up parsing algorithm
+class BottomUpParser(Parser):
+    def __init__(self, grammar):
+        super().__init__(grammar)
+        self.shift_reduce_table = self.build_shift_reduce_table()
+        self.goto_table = self.build_goto_table()
+        #TODO : Implement the Bottom up parsing algorithm
+        pass
+
 #TODO : Figure out a way to make the lexer and parser work together
 #TODO : Implement a way to handle errors in the parsing process
-            
-        
+#Advanced TODOs:
+#TODO : Implement a way to handle semantic actions during parsing
+#TODO : Implement a way to handle syntax-directed translation
+#TODO : Figure out how to make the IL (intermediate language) generation work with the parser
 
-
-    
