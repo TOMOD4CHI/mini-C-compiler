@@ -178,13 +178,6 @@ class TopDownParser(Parser):
         else:
             print("Parsing completed successfully.")
 
-class BottomUpParser(Parser):
-    def __init__(self, grammar):
-        super().__init__(grammar)
-        self.shift_reduce_table = self.build_shift_reduce_table()
-        self.goto_table = self.build_goto_table()
-        #TODO : Implement the Bottom up parsing algorithm
-        pass
 
 #TODO : Figure out a way to make the lexer and parser work together
 #TODO : Implement a way to handle errors in the parsing process
