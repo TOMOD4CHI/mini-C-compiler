@@ -1,43 +1,61 @@
 from parser import *
+from lexer import Lexer, Token
 
+keywords = {'if', 'else', 'while', 'for', 'return', 'function', 'int', 'const','main', 'void', 'float', 'char', 'bool'}
+token_specification = [
+    ('KEYWORD', r'\b(?:' + '|'.join(keywords) + r')\b'),
+    ('NUMBER',   r'\d+(\.\d*)?'),
+    ('IDENTIFIER', r'[A-Za-z_][A-Za-z_0-9]*'),
+    ('ASSIGN',   r'='),
+    ('OPERATOR', r'[+\-*/]'),
+    ('SEPARATOR', r'[;,\(\)\[\]\{\}]'),
+    ('NEWLINE',  r'\n'),
+    ('WHITESPACE', r'[ \t]+'),
+    ('Unknown', r'.'),
+    ('END', r'$')
+]
 
-"""
+#Simple C-like LL(1) grammar for testing
 productions = {
     "program": [
         ["function_declarations", "main_function"]
     ],
     "function_declarations": [
         ["function_declaration", "function_declarations"],
-        []
+        ["ε"]
     ],
     "function_declaration": [
-        ["type", "IDENTIFIER", "(", "parameters", ")", "{", "statements", "}"]
+        ["types", "IDENTIFIER", "(", "parameters", ")", "{", "statements", "}"]
     ],
     "main_function": [
         ["void", "main", "(", ")", "{", "statements", "}"],
         ["int", "main", "(", ")", "{", "statements", "return", "NUMBER", ";", "}"]
     ],
     "type": [
+        ["types"],
+        ["const", "types"]
+    ],
+    "types": [
         ["int"],
         ["float"],
         ["char"],
         ["bool"],
-        ["const", "int"],
-        ["const", "float"],
-        ["const", "char"],
-        ["const", "bool"]
+        ["void"]
     ],
     "parameters": [
-        ["parameter", ",", "parameters"],
-        ["parameter"],
-        []
+        ["parameter", "more_parameters"],
+        ["ε"]
+    ],
+    "more_parameters": [
+        [",", "parameter", "more_parameters"],
+        ["ε"]
     ],
     "parameter": [
-        ["type", "IDENTIFIER"]
+        ["types", "IDENTIFIER"],
     ],
     "statements": [
         ["statement", "statements"],
-        []
+        ["ε"]
     ],
     "statement": [
         ["declaration", ";"],
@@ -57,8 +75,11 @@ productions = {
         ["IDENTIFIER", "=", "expression"]
     ],
     "if_statement": [
-        ["if", "(", "expression", ")", "{", "statements", "}", "else", "{", "statements", "}"],
-        ["if", "(", "expression", ")", "{", "statements", "}"]
+        ["if", "(", "expression", ")", "{", "statements", "}", "else_statement"],
+    ],
+    "else_statement": [
+        ["else", "{", "statements", "}"],
+        ["ε"]
     ],
     "while_statement": [
         ["while", "(", "expression", ")", "{", "statements", "}"]
@@ -67,12 +88,18 @@ productions = {
         ["for", "(", "declaration", ";", "expression", ";", "assignment", ")", "{", "statements", "}"]
     ],
     "return_statement": [
-        ["return", "expression"],
-        ["return"]
+        ["return", "return_value"],
+    ],
+    "return_value": [
+        ["expression"],
+        ["ε"]
     ],
     "expression": [
-        ["term", "OPERATOR", "expression"],
-        ["term"]
+        ["term", "after"],
+    ],
+    "after": [
+        ["OPERATOR", "expression"],
+        ["ε"]
     ],
     "term": [
         ["NUMBER"],
@@ -80,36 +107,8 @@ productions = {
         ["(", "expression", ")"]
     ]
     }
-"""
-#Simple arithmetic grammar for testing
-productions = {
-    "program": [
-        ["statements"]
-    ],
-    "statements": [
-        ["statement", "statements"],
-        ["ε"]
-    ],
-    "statement": [
-        ["assignment", ";"],
-        ["expression", ";"]
-    ],
-    "assignment": [
-        ["IDENTIFIER", "=", "expression"]
-    ],
-    "expression": [
-        ["term", "after"]
-    ],
-    "after": [
-        ["+", "expression"],
-        ["ε"]
-    ],
-    "term": [
-        ["NUMBER"],
-        ["IDENTIFIER"],
-        ["(", "expression", ")"]
-    ]
-}
+
+lexer = Lexer(keywords, token_specification)
 grammar = Grammar("program", productions)
 parser = TopDownParser(grammar)
 print("Nullable Set :", parser.null())
@@ -123,7 +122,5 @@ for nt, rules in parser.parse_table.items():
     print(f"{nt}:")
     for t, production in rules.items():
         print(f"  {t} -> {production}") 
-input_tokens = ["IDENTIFIER", "=", "NUMBER", ";", "(", "NUMBER", "+", "NUMBER", ")", ";"]
-print('------------------------------')
-parser.parse(input_tokens)
+
 
