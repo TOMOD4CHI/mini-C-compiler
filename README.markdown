@@ -10,7 +10,7 @@ This project is a work-in-progress implementation of a compiler for a simplified
 
 ## Planned Features
 The compiler is still under development, with plans to implement both **top-down** and **bottom-up** parsing techniques, as studied in my compiler design course.
-- Future phases will include semantic analysis, intermediate code generation, and basic code optimization.
+- Future phases will include semantic analysis, intermediate code (IL) generation, and basic code optimization.
 
 ## Project Structure
 - `lexer.py`: Implements the lexical analyzer to tokenize input source code.
