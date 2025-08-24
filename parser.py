@@ -8,7 +8,7 @@ class Grammar():
         self.nonterminals = set(production.keys())
         self.terminals = set(token for production in self.production.values() for rule in production for token in rule if token not in self.nonterminals and token!="ε")
     
-    #I assume between every token in the productions there is a space for now until i find better way
+    # I assume between every token in the productions there is a space for now until i find better way
     # distinction between terminals and nonterminals
     def get_productions(self, nonterminal):
         return self.production.get(nonterminal, [])
